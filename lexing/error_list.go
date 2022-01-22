@@ -1,4 +1,4 @@
-// Copyright (C) 2021  Shanhu Tech Inc.
+// Copyright (C) 2022  Shanhu Tech Inc.
 //
 // This program is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Affero General Public License as published by the
@@ -92,6 +92,15 @@ func (lst *ErrorList) Print(w io.Writer) error {
 	return nil
 }
 
+// Errs retunrs the errors in the list
+func (lst *ErrorList) Errs() []*Error {
+	ret := lst.errs
+	if len(ret) == 0 {
+		return nil
+	}
+	return ret
+}
+
 // SingleErr returns an error array with one error.
 func SingleErr(err error) []*Error {
 	return []*Error{{Err: err}}
@@ -100,13 +109,4 @@ func SingleErr(err error) []*Error {
 // SingleCodeErr returns an error array with one error with ErrorCode.
 func SingleCodeErr(code string, err error) []*Error {
 	return []*Error{{Err: err, Code: code}}
-}
-
-// Errs retunrs the errors in the list
-func (lst *ErrorList) Errs() []*Error {
-	ret := lst.errs
-	if len(ret) == 0 {
-		return nil
-	}
-	return ret
 }

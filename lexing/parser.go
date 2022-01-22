@@ -1,4 +1,4 @@
-// Copyright (C) 2021  Shanhu Tech Inc.
+// Copyright (C) 2022  Shanhu Tech Inc.
 //
 // This program is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Affero General Public License as published by the
@@ -145,7 +145,8 @@ func (p *Parser) Expect(t int) *Token {
 	}
 
 	p.CodeErrorfHere("lexing.unexpected", "expect %s, got %s",
-		p.TypeStr(t), p.TypeStr(p.t.Type))
+		p.TypeStr(t), p.TypeStr(p.t.Type),
+	)
 	return nil
 }
 
