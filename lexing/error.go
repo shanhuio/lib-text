@@ -17,6 +17,8 @@ package lexing
 
 import (
 	"fmt"
+	"io"
+	"path/filepath"
 )
 
 // Error is a parsing error
@@ -26,16 +28,31 @@ type Error struct {
 	Code string // Code is the error code, machine friendly.
 }
 
+func errorStringWithPos(file string, line int, err error) string {
+	return fmt.Sprintf("%s:%d: %s", file, line, err.Error())
+}
+
 // Error returns the error string.
 func (e *Error) Error() string {
 	if e.Pos == nil {
 		return e.Err.Error()
 	}
 
-	return fmt.Sprintf("%s:%d: %s",
-		e.Pos.File, e.Pos.Line,
-		e.Err.Error(),
-	)
+	return errorStringWithPos(e.Pos.File, e.Pos.Line, e.Err)
+}
+
+// ErrorRelFile returns the error relative to the given workDir
+func (e *Error) ErrorRelFile(workDir string) string {
+	if e.Pos == nil || workDir == "" {
+		return e.Error()
+	}
+
+	file := e.Pos.File
+	rel, err := filepath.Rel(workDir, file)
+	if err == nil {
+		return errorStringWithPos(rel, e.Pos.Line, e.Err)
+	}
+	return errorStringWithPos(file, e.Pos.Line, e.Err)
 }
 
 // JSON returns a JSON marshable object of the error.
@@ -68,4 +85,11 @@ func CodeErrorf(c string, f string, args ...interface{}) *Error {
 // Errorf creates a lex8.Error similar to fmt.Errorf
 func Errorf(f, c string, args ...interface{}) *Error {
 	return CodeErrorf("", f, args...)
+}
+
+// FprintErrs prints a list of errors.
+func FprintErrs(w io.Writer, errs []*Error, workDir string) {
+	for _, err := range errs {
+		fmt.Fprintln(w, err.ErrorRelFile(workDir))
+	}
 }
